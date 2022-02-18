@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-
-using System.Diagnostics;
 using System.Linq;
 
 
 using System.Text.RegularExpressions;
-using System.Threading;
 
 
 namespace Lab_V2
@@ -15,13 +11,10 @@ namespace Lab_V2
     internal class Program
     {
 
+
         static void Main(string[] args)
         {
             //Lägga till i game
-            //List<double> shapeScoreh = new List<double>();
-            //List<double> shapeScorem = new List<double>();
-
-
 
             String input = "shape ,X,Y,LENGTH ,POINTS;CIRCLE ,3,1,13,100; CIRCLE ,1,-1,15,200; square, -1 ,0 ,20 ,300; SQUARE , -3 ,2 ,8 ,400;";
 
@@ -54,6 +47,9 @@ namespace Lab_V2
             string[] headerVariables = Regex.Split(substringHeader, @",|;");
 
 
+
+
+
             //Variabler
             int startIndexVar = 24;
             int lengthIndexVar = trimmed[trimmed.Length - 1];
@@ -61,7 +57,7 @@ namespace Lab_V2
 
             String substringVariables = trimmed;
 
-            //string[] listVariables = Regex.Split(substringVariables, @";|,");
+
             string[] listVariables = Regex.Split(substringVariables, @";");
 
 
@@ -121,68 +117,70 @@ namespace Lab_V2
 
             }
 
-            int dotX = 0;
+            int dotX = 1;
             int dotY = 0;
 
-            List<Circle> hitCircle = new List<Circle>();
-            List<Circle> missCircle = new List<Circle>();
+            List<double> hitCircle = new List<double>();
+            List<double> missCircle = new List<double>();
+
+
 
             foreach (Circle c in shapeCircle)
             {
                 if (c.Hit(dotX, dotY))
                 {
-                    hitCircle.Add(c);
+                    hitCircle.Add(c.shapeScore());
+
                 }
                 else
                 {
-                    missCircle.Add(c);
+                    missCircle.Add(c.shapeScore());
                 }
             }
 
-            //if (Hit(circleX, circleY, rad, dotX, dotY))
-            //{
-            //    Console.WriteLine("Inuti cirkel");
-            //    var eqCircleH = Circle.getShapeType * indexPoints / AreaCircle;
-            //    shapeScoreh.Add(eqCircleH);
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Utanför cirkel");
-            //    var eqCircleM = inputShapeTypeCircle * instancePointsCircle / AreaCircle;
-            //    shapeScorem.Add(eqCircleM);
-            //}
+
+            List<double> hitSquare = new List<double>();
+            List<double> missSquare = new List<double>();
+
+            Game game = new Game(missCircle, missSquare, hitSquare, hitCircle);
 
 
-
-            /*
-            if (listShape1.Equals("CIRCLE"))
+            foreach (Square s in shapeSquare)
             {
-                listOfShapes.Add(new Circle(listShape1[1], listShape1[2], listShape1[3], listShape1[4]));
+                if (s.Hit(dotX, dotY))
+                {
+                    hitSquare.Add(s.shapeScore());
+                }
+                else
+                {
+                    missSquare.Add(s.shapeScore());
+                }
             }
 
-            if (listShape1.Equals("CIRCLE"))
+            foreach (var item in hitSquare)
             {
-                listOfShapes.Add(new Circle(listShape1[1], newList.indexY, Shapes.indexLength, Shapes.indexPoints));
+                Console.WriteLine("Poäng för träffade fyrkanter: " + item);
             }
-            else if (Shapes.Equals("SQUARE"))
-            {
-                listOfShapes.Add(new Square(Shapes.indexX, Shapes.indexY, Shapes.indexLength, Shapes.indexPoints));
-            }
-           
-            */
 
+            foreach (var item in missSquare)
+            {
+                Console.WriteLine("Poäng för missade fyrkanter: " + item);
+            }
+
+            foreach (var item in hitCircle)
+            {
+                Console.WriteLine("Poäng för träffade cirklar: " + item);
+            }
+
+            foreach (var item in missCircle)
+            {
+                Console.WriteLine("Poäng för missade cirklar: " + item);
+            }
 
 
 
         }
 
-
-
-
-        //int returnShape(List<string> listShape1)
-        //{
-
-        //loopen slutar när den läser circle
 
 
         //var instancePointsCircle = inputPointsCircle;
@@ -264,6 +262,42 @@ namespace Lab_V2
     //    }
     //}
 
+    public class Game
+    {
+
+        public List<double> shapeScoreHit = new List<double>();
+        public List<double> shapeScoreMiss = new List<double>();
+
+        //List<double> hitSquare = new List<double>();
+        //List<double> missSquare = new List<double>();
+
+        //List<double> hitCircle = new List<double>();
+        //List<double> missCircle = new List<double>();
+
+
+
+        public double score;
+
+
+        public Game(List<double> missCircle, List<double> missSquare, List<double> hitSquare, List<double> hitCircle)
+        {
+            shapeScoreMiss = missCircle.Concat(missSquare).ToList();
+            shapeScoreHit = hitSquare.Concat(hitCircle).ToList();
+            score = Math.Round(shapeScoreHit.Sum() - (0.25 * shapeScoreHit.Sum()));
+            foreach (var item in shapeScoreHit)
+            {
+                Console.WriteLine(item + ":_)");
+            }
+            foreach (var item in shapeScoreMiss)
+            {
+                Console.WriteLine(item + ":_----------)");
+            }
+            Console.WriteLine(score);
+        }
+
+    }
+
+
 
 
     public class Circle
@@ -293,7 +327,6 @@ namespace Lab_V2
 
             if ((dotY - this.x) * (dotX - this.x) +
                 (dotY - this.y) * (dotY - this.y) <= this.rad * this.rad)
-
                 return true;
 
             else
@@ -302,6 +335,7 @@ namespace Lab_V2
 
         public double shapeScore()
         {
+
             double equationCircle = this.getShapeType() * this.points / this.area;
             return equationCircle;
         }
@@ -319,6 +353,10 @@ namespace Lab_V2
         public int length;
         public int points;
         public int area;
+        public int botX;
+        public int botY;
+        public int topX;
+        public int topY;
 
 
         public Square(int indexX, int indexY, int indexLength, int indexPoints)
@@ -327,15 +365,21 @@ namespace Lab_V2
             this.y = indexY;
             this.length = indexLength;
             this.points = indexPoints;
+            this.area = (this.length / 4) * (this.length / 4);
+            this.botX = this.x - (this.length / 2);
+            this.botY = this.y - (this.length / 2);
+            this.topX = this.x + (this.length / 2);
+            this.topY = this.y + (this.length / 2);
         }
-
-        bool Hit(int x1, int y1, int x2,
-    int y2, int SquareX, int SquareY)
+        //int botX, int botY, int topX, int topY,
+        public bool Hit(int dotX, int dotY)
         {
-            if (SquareX > x1 && SquareX < x2 &&
-                SquareY > y1 && SquareY < y2)
+            if (dotX > this.botX && dotX < this.topX &&
+                dotY > this.botY && dotY < this.topY)
                 return true;
+
             else
+
                 return false;
         }
         public double shapeScore()
